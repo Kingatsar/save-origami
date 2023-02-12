@@ -4,6 +4,7 @@ import Stats from 'three/addons/libs/stats.module.js';
 
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { ConvexObjectBreaker } from 'three/addons/misc/ConvexObjectBreaker.js';
+import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
 
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -50,6 +51,8 @@ let numObjectsToRemove = 0;
 
 const impactPoint = new THREE.Vector3();
 const impactNormal = new THREE.Vector3();
+
+const loader = new OBJLoader();
 
 // - Main code -
 
@@ -181,30 +184,56 @@ function createObjects() {
     quat.set(0, 0, 0, 1);
     createObject(towerMass, towerHalfExtents, pos, quat, createMaterial(0xB03014));
 
-    // Tower 2
+    // Tower 2 
     pos.set(8, 5, 0);
     quat.set(0, 0, 0, 1);
     createObject(towerMass, towerHalfExtents, pos, quat, createMaterial(0xB03214));
 
-    //Bridge
-    const bridgeMass = 100;
-    const bridgeHalfExtents = new THREE.Vector3(7, 0.2, 1.5);
-    pos.set(0, 10.2, 0);
-    quat.set(0, 0, 0, 1);
-    createObject(bridgeMass, bridgeHalfExtents, pos, quat, createMaterial(0xB3B865));
+    // //Bridge
+    // const bridgeMass = 100;
+    // const bridgeHalfExtents = new THREE.Vector3(7, 0.2, 1.5);
+    // pos.set(0, 10.2, 0);
+    // quat.set(0, 0, 0, 1);
+    // createObject(bridgeMass, bridgeHalfExtents, pos, quat, createMaterial(0xB3B865));
 
-    // Stones
-    const stoneMass = 120;
-    const stoneHalfExtents = new THREE.Vector3(1, 2, 0.15);
-    const numStones = 8;
-    quat.set(0, 0, 0, 1);
-    for (let i = 0; i < numStones; i++) {
+    // // Stones
+    // const stoneMass = 120;
+    // const stoneHalfExtents = new THREE.Vector3(1, 2, 0.15);
+    // const numStones = 8;
+    // quat.set(0, 0, 0, 1);
+    // for (let i = 0; i < numStones; i++) {
 
-        pos.set(0, 2, 15 * (0.5 - i / (numStones + 1)));
+    //     pos.set(0, 2, 15 * (0.5 - i / (numStones + 1)));
 
-        createObject(stoneMass, stoneHalfExtents, pos, quat, createMaterial(0xB0B0B0));
+    //     createObject(stoneMass, stoneHalfExtents, pos, quat, createMaterial(0xB0B0B0));
 
-    }
+    // }
+
+
+    // load a resource
+    loader.load(
+        // resource URL
+        'assets/models/Astronaut.obj',
+        // called when resource is loaded
+        function (object) {
+
+            scene.add(object);
+
+        },
+        // called when loading is in progresses
+        function (xhr) {
+
+            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+
+        },
+        // called when loading has errors
+        function (error) {
+
+            console.log('An error happened');
+
+        }
+    );
+
 
     // // Mountain
     // const mountainMass = 860;
@@ -566,21 +595,3 @@ function updatePhysics(deltaTime) {
 
 }
 
-function loadData() {
-    new GLTFLoader()
-        .setPath('assets/models/')
-        .load('test.glb', gltfReader);
-}
-
-function gltfReader(gltf) {
-    let testModel = null;
-
-    testModel = gltf.scene;
-
-    if (testModel != null) {
-        console.log("Model loaded:  " + testModel);
-        scene.add(gltf.scene);
-    } else {
-        console.log("Load FAILED.  ");
-    }
-}
