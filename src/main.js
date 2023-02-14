@@ -8,6 +8,7 @@ import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
 
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 // - Global variables -
 
 // Graphics variables
@@ -210,29 +211,125 @@ function createObjects() {
     // }
 
 
-    // load a resource
-    loader.load(
-        // resource URL
-        'assets/models/Astronaut.obj',
-        // called when resource is loaded
-        function (object) {
+    // // load a resource
+    // loader.load(
+    //     // resource URL
+    //     'assets/models/Astronaut.obj',
+    //     // called when resource is loaded
+    //     function (object) {
 
-            scene.add(object);
+    //         scene.add(object);
 
-        },
-        // called when loading is in progresses
-        function (xhr) {
+    //     },
+    //     // called when loading is in progresses
+    //     function (xhr) {
 
-            console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+    //         console.log((xhr.loaded / xhr.total * 100) + '% loaded');
 
-        },
-        // called when loading has errors
-        function (error) {
+    //     },
+    //     // called when loading has errors
+    //     function (error) {
 
-            console.log('An error happened');
+    //         console.log('An error happened');
 
+    //     }
+    // );
+
+
+    let head;
+    let position = { x: 0, y: 5, z: 0 },
+        quaternion = { x: 0, y: 0, z: 0, w: 1 },
+        mass = 1
+
+    const scale = 5
+
+    let loader = new GLTFLoader()
+    const dracoLoader = new DRACOLoader()
+    dracoLoader.setDecoderPath('/draco/')
+    loader.setDRACOLoader(dracoLoader)
+    loader.load('assets/models/Flying saucer.glb', (gltf) => {
+
+        head = gltf.scene.children[0]
+        // head.scale.set(scale, scale, scale)
+        head.position.set(0, position.y, 0)
+        head.castShadow = true
+
+
+        //physics
+
+        const transform = new Ammo.btTransform();
+        transform.setIdentity();
+        transform.setOrigin(new Ammo.btVector3(position.x, position.y, position.z));
+        transform.setRotation(new Ammo.btQuaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w));
+
+        const shape = new Ammo.btConvexHullShape();
+
+        //new ammo triangles
+        let triangle, triangle_mesh = new Ammo.btTriangleMesh();
+
+        //declare triangles position vectors
+        let vectA = new Ammo.btVector3(0, 0, 0);
+        let vectB = new Ammo.btVector3(0, 0, 0);
+        let vectC = new Ammo.btVector3(0, 0, 0);
+
+        //retrieve vertices positions from object
+        let verticesPos = Object.values(head.position);
+        console.log(verticesPos)
+
+        let triangles = [];
+        for (let i = 0; i < verticesPos.length; i += 3) {
+            triangles.push({
+                x: verticesPos[i],
+                y: verticesPos[i + 1],
+                z: verticesPos[i + 2]
+            })
         }
-    );
+
+        //use triangles data to draw ammo shape
+        for (let i = 0; i < triangles.length - 3; i += 3) {
+
+            vectA.setX(triangles[i].x);
+            vectA.setY(triangles[i].y);
+            vectA.setZ(triangles[i].z);
+            shape.addPoint(vectA, true);
+
+            vectB.setX(triangles[i + 1].x);
+            vectB.setY(triangles[i + 1].y);
+            vectB.setZ(triangles[i + 1].z);
+            shape.addPoint(vectB, true);
+
+            vectC.setX(triangles[i + 2].x);
+            vectC.setY(triangles[i + 2].y);
+            vectC.setZ(triangles[i + 2].z);
+            shape.addPoint(vectC, true);
+
+            triangle_mesh.addTriangle(vectA, vectB, vectC, true);
+        }
+
+        Ammo.destroy(vectA);
+        Ammo.destroy(vectB);
+        Ammo.destroy(vectC);
+
+        shape.setMargin(0.05);
+        const motionState = new Ammo.btDefaultMotionState(transform);
+
+        const localInertia = new Ammo.btVector3(0, 0, 0);
+        shape.calculateLocalInertia(mass, localInertia);
+
+        const rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, shape, localInertia);
+
+        const rBody = new Ammo.btRigidBody(rbInfo);
+
+        head.userData.physicsBody = rBody
+
+        scene.add(head)
+        rigidBodies.push(head)
+        // physicsWorld.addRigidBody(rBody)
+        console.log(gltf)
+        console.log(head)
+        // verticesNeedUpdate = true
+        console.log("ENDDDDDD")
+    })
 
 
     // // Mountain
