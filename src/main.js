@@ -190,27 +190,6 @@ function createObjects() {
     quat.set(0, 0, 0, 1);
     createObject(towerMass, towerHalfExtents, pos, quat, createMaterial(0xB03214));
 
-    // //Bridge
-    // const bridgeMass = 100;
-    // const bridgeHalfExtents = new THREE.Vector3(7, 0.2, 1.5);
-    // pos.set(0, 10.2, 0);
-    // quat.set(0, 0, 0, 1);
-    // createObject(bridgeMass, bridgeHalfExtents, pos, quat, createMaterial(0xB3B865));
-
-    // // Stones
-    // const stoneMass = 120;
-    // const stoneHalfExtents = new THREE.Vector3(1, 2, 0.15);
-    // const numStones = 8;
-    // quat.set(0, 0, 0, 1);
-    // for (let i = 0; i < numStones; i++) {
-
-    //     pos.set(0, 2, 15 * (0.5 - i / (numStones + 1)));
-
-    //     createObject(stoneMass, stoneHalfExtents, pos, quat, createMaterial(0xB0B0B0));
-
-    // }
-
-
     // // load a resource
     // loader.load(
     //     // resource URL
@@ -407,23 +386,14 @@ function createConvexHullPhysicsShape(coords) {
 function createRigidBody(object, physicsShape, mass, pos, quat, vel, angVel) {
 
     if (pos) {
-
         object.position.copy(pos);
-
     } else {
-
         pos = object.position;
-
     }
-
     if (quat) {
-
         object.quaternion.copy(quat);
-
     } else {
-
         quat = object.quaternion;
-
     }
 
     const transform = new Ammo.btTransform();
@@ -441,9 +411,7 @@ function createRigidBody(object, physicsShape, mass, pos, quat, vel, angVel) {
     body.setFriction(0.5);
 
     if (vel) {
-
         body.setLinearVelocity(new Ammo.btVector3(vel.x, vel.y, vel.z));
-
     }
 
     if (angVel) {
@@ -497,8 +465,8 @@ function initInput() {
         raycaster.setFromCamera(mouseCoords, camera);
 
         // Creates a ball and throws it
-        const ballMass = 35;
-        const ballRadius = 0.4;
+        const ballMass = 50;
+        const ballRadius = 1;
 
         const ball = new THREE.Mesh(new THREE.SphereGeometry(ballRadius, 14, 10), ballMaterial);
         ball.castShadow = true;
