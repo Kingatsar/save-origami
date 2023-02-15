@@ -161,7 +161,7 @@ function createObject(mass, halfExtents, pos, quat, material) {
 
 function createSphereCage(mass, halfExtents, pos, quat) {
     // radius, widthSegments, heighSegments
-    const material = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.5 });
+    const material = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.2 });
 
     const object = new THREE.Mesh(new THREE.SphereGeometry(halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2), material);
     object.position.copy(pos);
@@ -183,23 +183,33 @@ function createObjects() {
     quat.set(0, 0, 0, 1);
     createParalellepipedWithPhysics(0.3, 5, 8, 0, pos, quat, new THREE.MeshPhongMaterial({ color: 0x0000ff, transparent: true, opacity: 0 }));
 
-
-    // Tower 1
-    const towerMass = 1000;
-    const towerHalfExtents = new THREE.Vector3(2, 5, 2);
-    pos.set(- 8, 5, 0);
-    quat.set(0, 0, 0, 1);
-    createObject(towerMass, towerHalfExtents, pos, quat, createMaterial(0xB03014));
-
-    // Sphere cage
+    // cube cage
     const cageMass = 0;
-    const cageExtents = new THREE.Vector3(1, 3, 3);
-    pos.set(0, 5, 0);
+    let cageExtents = new THREE.Vector3(0.4, 3, 3);
+    pos.set(-2, 8.7, 0);
+    quat.set(0, 0, 0, 1);
+    createSphereCage(cageMass, cageExtents, pos, quat);
+
+    pos.set(-2, 8.7, 1.8);
+    quat.set(0, 0, 0, 1);
+    createSphereCage(cageMass, cageExtents, pos, quat);
+
+    pos.set(-2, 8.7, -4.2);
+    quat.set(0, 0, 0, 1);
+    createSphereCage(cageMass, cageExtents, pos, quat);
+
+    cageExtents = new THREE.Vector3(0.6, 3, 3);
+    pos.set(-2, 8.7, -2);
+    quat.set(0, 0, 0, 1);
+    createSphereCage(cageMass, cageExtents, pos, quat);
+
+    cageExtents = new THREE.Vector3(0.7, 3, 3);
+    pos.set(-2, 8.7, 4);
     quat.set(0, 0, 0, 1);
     createSphereCage(cageMass, cageExtents, pos, quat);
 
     // origami pack
-    const scaleOP = 0.3
+    const scaleOP = 0.4
 
     let loaderOP = new GLTFLoader()
     loaderOP.load('assets/models/origami_pack.glb', (gltf) => {
