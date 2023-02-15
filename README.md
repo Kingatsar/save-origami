@@ -45,7 +45,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 Useful git repositories that helped for this project:
 
-- three-jsm: [Mugen87](https://github.com/Mugen87/three-jsm)
-- three-parcel: [fdoganis](https://github.com/fdoganis/three_parcel)
-- physics_ammo_break: [mrdoob](https://github.com/mrdoob/three.js/blob/master/examples/physics_ammo_break.html)
+- Mugen87: [three-jsm](https://github.com/Mugen87/three-jsm)
+- fdoganis: [three-parcel](https://github.com/fdoganis/three_parcel)
+- mrdoob/three.js/: [physics_ammo_break](https://github.com/mrdoob/three.js/blob/master/examples/physics_ammo_break.html)
 
