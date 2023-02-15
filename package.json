@@ -11,6 +11,7 @@
   "author": "Mugen87",
   "license": "MIT",
   "dependencies": {
+    "cors": "^2.8.5",
     "three": "0.149.0"
   },
   "devDependencies": {
