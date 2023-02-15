@@ -1,61 +1,54 @@
 import * as THREE from 'three';
 
 import Stats from 'three/addons/libs/stats.module.js';
-
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { ConvexObjectBreaker } from 'three/addons/misc/ConvexObjectBreaker.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
-// - Global variables -
+
+// -------------------------------- Global variables -------------------------------- //
 
 // Graphics variables
 let container, stats;
 let camera, controls, scene, renderer;
-let textureLoader;
 const clock = new THREE.Clock();
-
-const mouseCoords = new THREE.Vector2();
-const raycaster = new THREE.Raycaster();
-const ballMaterial = new THREE.MeshPhongMaterial({ color: 0xee82ee });
 
 // Physics variables
 const gravityConstant = 7.8;
 let collisionConfiguration;
-let dispatcher;
-let broadphase;
-let solver;
+let dispatcher, broadphase, solver;
 let physicsWorld;
-const margin = 0.05;
-
-const convexBreaker = new ConvexObjectBreaker();
-
-// Rigid bodies include all movable objects
-const rigidBodies = [];
-
-const pos = new THREE.Vector3();
-const quat = new THREE.Quaternion();
 let transformAux1;
 let tempBtVec3_1;
 
+// Creating objects variables
+const convexBreaker = new ConvexObjectBreaker();
+const margin = 0.05;
+const pos = new THREE.Vector3();
+const quat = new THREE.Quaternion();
+
+// Rigid bodies variables
+const rigidBodies = [];
 const objectsToRemove = [];
-
-for (let i = 0; i < 500; i++) {
-
-    objectsToRemove[i] = null;
-
-}
-
 let numObjectsToRemove = 0;
 
+for (let i = 0; i < 500; i++) {
+    objectsToRemove[i] = null;
+}
+
+// init input variables
+const mouseCoords = new THREE.Vector2();
+const raycaster = new THREE.Raycaster();
+const ballMaterial = new THREE.MeshPhongMaterial({ color: 0xee82ee });
+
+// Update physics variables
 const impactPoint = new THREE.Vector3();
 const impactNormal = new THREE.Vector3();
 
-const loader = new OBJLoader();
 
-// - Main code -
-
+// -------------------------------- Main code -------------------------------- //
+// ------ Ammo.js Init ------
 Ammo().then(function (AmmoLib) {
 
     Ammo = AmmoLib;
@@ -66,7 +59,7 @@ Ammo().then(function (AmmoLib) {
 });
 
 
-// - Functions -
+// -------------------------------- Functions -------------------------------- //
 
 function init() {
 
@@ -80,29 +73,34 @@ function init() {
 
 }
 
+// ------  Three.JS graphics universe setup ------
 function initGraphics() {
 
+    /* 
+    
+        Graphics configuration 
+        
+    */
+
+    // - Initialize -
     container = document.getElementById('container');
-
+    // Camera
     camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 10, 5000);
-
+    camera.position.set(10, 20, 0);
+    // Scene
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0xbfd1e5);
-
-    camera.position.set(10, 20, 0);
-
+    // Renderer
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
     container.appendChild(renderer.domElement);
-
+    // Controls
     controls = new OrbitControls(camera, renderer.domElement);
     controls.target.set(0, 2, 0);
     controls.update();
-
-    textureLoader = new THREE.TextureLoader();
-
+    // Light
     const ambientLight = new THREE.AmbientLight(0x707070);
     scene.add(ambientLight);
 
@@ -114,10 +112,8 @@ function initGraphics() {
     light.shadow.camera.right = d;
     light.shadow.camera.top = d;
     light.shadow.camera.bottom = - d;
-
     light.shadow.camera.near = 2;
     light.shadow.camera.far = 50;
-
     light.shadow.mapSize.x = 1024;
     light.shadow.mapSize.y = 1024;
 
@@ -128,15 +124,18 @@ function initGraphics() {
     stats.domElement.style.top = '0px';
     container.appendChild(stats.domElement);
 
-    //
-
     window.addEventListener('resize', onWindowResize);
 
 }
 
+// ------ Physics World setup ------
 function initPhysics() {
 
-    // Physics configuration
+    /* 
+    
+        Physics configuration 
+        
+    */
 
     collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
     dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);
@@ -152,6 +151,16 @@ function initPhysics() {
 
 function createObject(mass, halfExtents, pos, quat, material) {
 
+    /* 
+
+            Creates 3D cubes with ammo physics
+        mass – physical mass of cube.
+        halfExtents – XYZ scale for cube.
+        pos – Vector3 type object containing position of cube on XYZ axes.
+        quat – The initial rotation of our cube
+    
+    */
+
     const object = new THREE.Mesh(new THREE.BoxGeometry(halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2), material);
     object.position.copy(pos);
     object.quaternion.copy(quat);
@@ -160,9 +169,17 @@ function createObject(mass, halfExtents, pos, quat, material) {
 }
 
 function createSphereCage(mass, halfExtents, pos, quat) {
-    // radius, widthSegments, heighSegments
-    const material = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.2 });
+    /* 
 
+            Creates 3D sphere with ammo physics
+        mass – physical mass of sphere.
+        halfExtents – radius, widthSegments, heighSegments scale for sphere.
+        pos – Vector3 type object containing position of sphere on XYZ axes.
+        quat – The initial rotation of our sphere
+ 
+    */
+
+    const material = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.2 });
     const object = new THREE.Mesh(new THREE.SphereGeometry(halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2), material);
     object.position.copy(pos);
     object.quaternion.copy(quat);
@@ -172,18 +189,24 @@ function createSphereCage(mass, halfExtents, pos, quat) {
 
 function createObjects() {
 
-    // Ground
+    /* 
+    
+        Creates different objects for the scene with ammo physics
+    
+    */
+
+    // - Table object -
     pos.set(0, - 0.5, 0);
     quat.set(0, 0, 0, 1);
-    const ground = createParalellepipedWithPhysics(12, 2, 20, 0, pos, quat, new THREE.MeshPhongMaterial({ color: 0x0000ff, transparent: true, opacity: 0 }));
-    ground.receiveShadow = true;
+    const table = createParalellepipedWithPhysics(12, 2, 20, 0, pos, quat, new THREE.MeshPhongMaterial({ color: 0x0000ff, transparent: true, opacity: 0 }));
+    table.receiveShadow = true;
 
-    // Computer
+    // - Computer object -
     pos.set(-2.1, 5.5, 0.2);
     quat.set(0, 0, 0, 1);
     createParalellepipedWithPhysics(0.3, 5, 8, 0, pos, quat, new THREE.MeshPhongMaterial({ color: 0x0000ff, transparent: true, opacity: 0 }));
 
-    // cube cage
+    // - Cube cages objects -
     const cageMass = 0;
     let cageExtents = new THREE.Vector3(0.4, 3, 3);
     pos.set(-2, 8.7, 0);
@@ -208,9 +231,8 @@ function createObjects() {
     quat.set(0, 0, 0, 1);
     createSphereCage(cageMass, cageExtents, pos, quat);
 
-    // origami pack
+    // - Origamis object -
     const scaleOP = 0.4
-
     let loaderOP = new GLTFLoader()
     loaderOP.load('assets/models/origami_pack.glb', (gltf) => {
 
@@ -225,10 +247,9 @@ function createObjects() {
         } else {
             console.log("Load FAILED.  ");
         }
-
     });
 
-    // gltf object
+    // - Desktop setup object -
     let head;
     let position = { x: 0, y: -7, z: 0 },
         quaternion = { x: -1, y: 0, z: 0, w: 1 },
@@ -244,13 +265,10 @@ function createObjects() {
 
         head = gltf.scene.children[0]
         head.scale.set(scale, scale, scale)
-
-
         head.castShadow = true
 
-
-        //physics
-
+        //  ------ attempt to add ammo physics to gltf ojbects ------ //
+        // - physics -
         const transform = new Ammo.btTransform();
         transform.setIdentity();
         transform.setOrigin(new Ammo.btVector3(position.x, position.y, position.z));
@@ -258,15 +276,15 @@ function createObjects() {
 
         const shape = new Ammo.btConvexHullShape();
 
-        //new ammo triangles
+        // - new ammo triangles - 
         let triangle, triangle_mesh = new Ammo.btTriangleMesh();
 
-        //declare triangles position vectors
+        // - declare triangles position vectors -
         let vectA = new Ammo.btVector3(0, 0, 0);
         let vectB = new Ammo.btVector3(0, 0, 0);
         let vectC = new Ammo.btVector3(0, 0, 0);
 
-        //retrieve vertices positions from object
+        // - retrieve vertices positions from object -
         let verticesPos = Object.values(head.position);
         console.log(verticesPos)
 
@@ -279,7 +297,7 @@ function createObjects() {
             })
         }
 
-        //use triangles data to draw ammo shape
+        // - use triangles data to draw ammo shape -
         for (let i = 0; i < triangles.length - 3; i += 3) {
 
             vectA.setX(triangles[i].x);
@@ -317,12 +335,10 @@ function createObjects() {
 
         head.userData.physicsBody = rBody
 
-        console.log("-------------")
-        console.log(head)
-        console.log("-------------")
+        rigidBodies.push(head)
+        //  ------ attempt to add ammo physics to gltf ojbects ------ //
 
         scene.add(head)
-        rigidBodies.push(head)
 
     })
 
@@ -330,6 +346,12 @@ function createObjects() {
 }
 
 function createParalellepipedWithPhysics(sx, sy, sz, mass, pos, quat, material) {
+
+    /* 
+    
+        Creates paralellepiped objects with ammo physics
+        
+    */
 
     const object = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz, 1, 1, 1), material);
     const shape = new Ammo.btBoxShape(new Ammo.btVector3(sx * 0.5, sy * 0.5, sz * 0.5));
@@ -342,6 +364,12 @@ function createParalellepipedWithPhysics(sx, sy, sz, mass, pos, quat, material) 
 }
 
 function createDebrisFromBreakableObject(object) {
+
+    /* 
+    
+        Physics configuration 
+        
+    */
 
     object.castShadow = true;
     object.receiveShadow = true;
@@ -359,6 +387,12 @@ function createDebrisFromBreakableObject(object) {
 }
 
 function removeDebris(object) {
+
+    /*
+    
+        Remove debris from the object when broken
+    
+    */
 
     scene.remove(object);
 
@@ -384,6 +418,19 @@ function createConvexHullPhysicsShape(coords) {
 
 function createRigidBody(object, physicsShape, mass, pos, quat, vel, angVel) {
 
+    /*
+    
+            Creates object that can be breakable once hit by something
+        object - object to apply the ammo physics
+        physicsShape - 
+        mass – physical mass of sphere
+        pos – Vector3 type object containing position of sphere on XYZ axes
+        quat – The initial rotation of our sphere
+        vel - velocity for the body
+        angVel - angular velocity for the body
+    
+    */
+
     if (pos) {
         object.position.copy(pos);
     } else {
@@ -395,15 +442,18 @@ function createRigidBody(object, physicsShape, mass, pos, quat, vel, angVel) {
         quat = object.quaternion;
     }
 
+    // Default Motion State: defines initial position and rotation of object
     const transform = new Ammo.btTransform();
     transform.setIdentity();
     transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
     transform.setRotation(new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w));
     const motionState = new Ammo.btDefaultMotionState(transform);
 
+    // Calculation of object's initial inertia
     const localInertia = new Ammo.btVector3(0, 0, 0);
     physicsShape.calculateLocalInertia(mass, localInertia);
 
+    // Create our Rigid Body
     const rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, physicsShape, localInertia);
     const body = new Ammo.btRigidBody(rbInfo);
 
@@ -433,6 +483,7 @@ function createRigidBody(object, physicsShape, mass, pos, quat, vel, angVel) {
 
     }
 
+    // add Rigid Body to physics universe 
     physicsWorld.addRigidBody(body);
 
     return body;
@@ -526,7 +577,6 @@ function updatePhysics(deltaTime) {
         const ms = objPhys.getMotionState();
 
         if (ms) {
-
             ms.getWorldTransform(transformAux1);
             const p = transformAux1.getOrigin();
             const q = transformAux1.getRotation();
@@ -534,9 +584,7 @@ function updatePhysics(deltaTime) {
             objThree.quaternion.set(q.x(), q.y(), q.z(), q.w());
 
             objThree.userData.collided = false;
-
         }
-
     }
 
     for (let i = 0, il = dispatcher.getNumManifolds(); i < il; i++) {
@@ -549,9 +597,7 @@ function updatePhysics(deltaTime) {
         const threeObject1 = Ammo.castObject(rb1.getUserPointer(), Ammo.btVector3).threeObject;
 
         if (!threeObject0 && !threeObject1) {
-
             continue;
-
         }
 
         const userData0 = threeObject0 ? threeObject0.userData : null;
@@ -564,9 +610,7 @@ function updatePhysics(deltaTime) {
         const collided1 = userData1 ? userData1.collided : false;
 
         if ((!breakable0 && !breakable1) || (collided0 && collided1)) {
-
             continue;
-
         }
 
         let contact = false;
@@ -581,19 +625,15 @@ function updatePhysics(deltaTime) {
                 const impulse = contactPoint.getAppliedImpulse();
 
                 if (impulse > maxImpulse) {
-
                     maxImpulse = impulse;
                     const pos = contactPoint.get_m_positionWorldOnB();
                     const normal = contactPoint.get_m_normalWorldOnB();
                     impactPoint.set(pos.x(), pos.y(), pos.z());
                     impactNormal.set(normal.x(), normal.y(), normal.z());
-
                 }
 
                 break;
-
             }
-
         }
 
         // If no point has contact, abort
@@ -617,7 +657,6 @@ function updatePhysics(deltaTime) {
                 fragment.userData.angularVelocity.set(angVel.x(), angVel.y(), angVel.z());
 
                 createDebrisFromBreakableObject(fragment);
-
             }
 
             objectsToRemove[numObjectsToRemove++] = threeObject0;
