@@ -158,7 +158,17 @@ function createObject(mass, halfExtents, pos, quat, material) {
     object.quaternion.copy(quat);
     convexBreaker.prepareBreakableObject(object, mass, new THREE.Vector3(), new THREE.Vector3(), true);
     createDebrisFromBreakableObject(object);
+}
 
+function createSphereCage(mass, halfExtents, pos, quat) {
+    // radius, widthSegments, heighSegments
+    const material = new THREE.MeshBasicMaterial({ color: 0x0000ff, transparent: true, opacity: 0.5 });
+
+    const object = new THREE.Mesh(new THREE.SphereGeometry(halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2), material);
+    object.position.copy(pos);
+    object.quaternion.copy(quat);
+    convexBreaker.prepareBreakableObject(object, mass, new THREE.Vector3(), new THREE.Vector3(), true);
+    createDebrisFromBreakableObject(object);
 }
 
 function createObjects() {
@@ -190,31 +200,16 @@ function createObjects() {
     quat.set(0, 0, 0, 1);
     createObject(towerMass, towerHalfExtents, pos, quat, createMaterial(0xB03214));
 
-    // // load a resource
-    // loader.load(
-    //     // resource URL
-    //     'assets/models/Astronaut.obj',
-    //     // called when resource is loaded
-    //     function (object) {
-
-    //         scene.add(object);
-
-    //     },
-    //     // called when loading is in progresses
-    //     function (xhr) {
-
-    //         console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-
-    //     },
-    //     // called when loading has errors
-    //     function (error) {
-
-    //         console.log('An error happened');
-
-    //     }
-    // );
+    // Sphere cage
+    const cageMass = 0;
+    const cageExtents = new THREE.Vector3(1, 3, 3);
+    pos.set(0, 5, 0);
+    quat.set(0, 0, 0, 1);
+    createSphereCage(cageMass, cageExtents, pos, quat);
 
 
+
+    // gltf object
     let head;
     let position = { x: 0, y: 5, z: 0 },
         quaternion = { x: 0, y: 0, z: 0, w: 1 },
@@ -231,6 +226,7 @@ function createObjects() {
         head = gltf.scene.children[0]
         // head.scale.set(scale, scale, scale)
         head.position.set(0, position.y, 0)
+
         head.castShadow = true
 
 
@@ -289,6 +285,7 @@ function createObjects() {
         Ammo.destroy(vectB);
         Ammo.destroy(vectC);
 
+
         shape.setMargin(0.05);
         const motionState = new Ammo.btDefaultMotionState(transform);
 
@@ -303,10 +300,11 @@ function createObjects() {
 
         scene.add(head)
         rigidBodies.push(head)
+
+        // head.geometry.verticesNeedUpdate = true
         // physicsWorld.addRigidBody(rBody)
         console.log(gltf)
         console.log(head)
-        // verticesNeedUpdate = true
         console.log("ENDDDDDD")
     })
 
