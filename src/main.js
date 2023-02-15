@@ -5,7 +5,6 @@ import Stats from 'three/addons/libs/stats.module.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { ConvexObjectBreaker } from 'three/addons/misc/ConvexObjectBreaker.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
 
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
@@ -85,12 +84,12 @@ function initGraphics() {
 
     container = document.getElementById('container');
 
-    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.2, 2000);
+    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 10, 5000);
 
     scene = new THREE.Scene();
     scene.background = new THREE.Color(0xbfd1e5);
 
-    camera.position.set(- 14, 8, 16);
+    camera.position.set(10, 20, 0);
 
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio(window.devicePixelRatio);
@@ -176,17 +175,14 @@ function createObjects() {
     // Ground
     pos.set(0, - 0.5, 0);
     quat.set(0, 0, 0, 1);
-    const ground = createParalellepipedWithPhysics(40, 1, 40, 0, pos, quat, new THREE.MeshPhongMaterial({ color: 0xFFFFFF }));
+    const ground = createParalellepipedWithPhysics(12, 2, 20, 0, pos, quat, new THREE.MeshPhongMaterial({ color: 0x0000ff, transparent: true }));
     ground.receiveShadow = true;
-    textureLoader.load('grass.jpg', function (texture) {
 
-        texture.wrapS = THREE.RepeatWrapping;
-        texture.wrapT = THREE.RepeatWrapping;
-        texture.repeat.set(40, 40);
-        ground.material.map = texture;
-        ground.material.needsUpdate = true;
+    // Computer
+    pos.set(-2.1, 5.5, 0.2);
+    quat.set(0, 0, 0, 1);
+    createParalellepipedWithPhysics(0.3, 5, 8, 0, pos, quat, new THREE.MeshPhongMaterial({ color: 0x0000ff, transparent: true }));
 
-    });
 
     // Tower 1
     const towerMass = 1000;
@@ -194,11 +190,6 @@ function createObjects() {
     pos.set(- 8, 5, 0);
     quat.set(0, 0, 0, 1);
     createObject(towerMass, towerHalfExtents, pos, quat, createMaterial(0xB03014));
-
-    // Tower 2 
-    pos.set(8, 5, 0);
-    quat.set(0, 0, 0, 1);
-    createObject(towerMass, towerHalfExtents, pos, quat, createMaterial(0xB03214));
 
     // Sphere cage
     const cageMass = 0;
@@ -211,21 +202,21 @@ function createObjects() {
 
     // gltf object
     let head;
-    let position = { x: 0, y: 5, z: 0 },
-        quaternion = { x: 0, y: 0, z: 0, w: 1 },
+    let position = { x: 0, y: -7, z: 0 },
+        quaternion = { x: -1, y: 0, z: 0, w: 1 },
         mass = 1
 
-    const scale = 5
+    const scale = 2
 
     let loader = new GLTFLoader()
     const dracoLoader = new DRACOLoader()
     dracoLoader.setDecoderPath('/draco/')
     loader.setDRACOLoader(dracoLoader)
-    loader.load('assets/models/Flying saucer.glb', (gltf) => {
+    loader.load('assets/models/computer_desk.glb', (gltf) => {
 
         head = gltf.scene.children[0]
-        // head.scale.set(scale, scale, scale)
-        head.position.set(0, position.y, 0)
+        head.scale.set(scale, scale, scale)
+
 
         head.castShadow = true
 
@@ -298,33 +289,15 @@ function createObjects() {
 
         head.userData.physicsBody = rBody
 
+        console.log("-------------")
+        console.log(head)
+        console.log("-------------")
+
         scene.add(head)
         rigidBodies.push(head)
 
-        // head.geometry.verticesNeedUpdate = true
-        // physicsWorld.addRigidBody(rBody)
-        console.log(gltf)
-        console.log(head)
-        console.log("ENDDDDDD")
     })
 
-
-    // // Mountain
-    // const mountainMass = 860;
-    // const mountainHalfExtents = new THREE.Vector3(4, 5, 4);
-    // pos.set(5, mountainHalfExtents.y * 0.5, - 7);
-    // quat.set(0, 0, 0, 1);
-    // const mountainPoints = [];
-    // mountainPoints.push(new THREE.Vector3(mountainHalfExtents.x, - mountainHalfExtents.y, mountainHalfExtents.z));
-    // mountainPoints.push(new THREE.Vector3(- mountainHalfExtents.x, - mountainHalfExtents.y, mountainHalfExtents.z));
-    // mountainPoints.push(new THREE.Vector3(mountainHalfExtents.x, - mountainHalfExtents.y, - mountainHalfExtents.z));
-    // mountainPoints.push(new THREE.Vector3(- mountainHalfExtents.x, - mountainHalfExtents.y, - mountainHalfExtents.z));
-    // mountainPoints.push(new THREE.Vector3(0, mountainHalfExtents.y, 0));
-    // const mountain = new THREE.Mesh(new ConvexGeometry(mountainPoints), createMaterial(0xB03814));
-    // mountain.position.copy(pos);
-    // mountain.quaternion.copy(quat);
-    // convexBreaker.prepareBreakableObject(mountain, mountainMass, new THREE.Vector3(), new THREE.Vector3(), true);
-    // createDebrisFromBreakableObject(mountain);
 
 }
 
