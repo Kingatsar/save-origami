@@ -175,13 +175,13 @@ function createObjects() {
     // Ground
     pos.set(0, - 0.5, 0);
     quat.set(0, 0, 0, 1);
-    const ground = createParalellepipedWithPhysics(12, 2, 20, 0, pos, quat, new THREE.MeshPhongMaterial({ color: 0x0000ff, transparent: true }));
+    const ground = createParalellepipedWithPhysics(12, 2, 20, 0, pos, quat, new THREE.MeshPhongMaterial({ color: 0x0000ff, transparent: true, opacity: 0 }));
     ground.receiveShadow = true;
 
     // Computer
     pos.set(-2.1, 5.5, 0.2);
     quat.set(0, 0, 0, 1);
-    createParalellepipedWithPhysics(0.3, 5, 8, 0, pos, quat, new THREE.MeshPhongMaterial({ color: 0x0000ff, transparent: true }));
+    createParalellepipedWithPhysics(0.3, 5, 8, 0, pos, quat, new THREE.MeshPhongMaterial({ color: 0x0000ff, transparent: true, opacity: 0 }));
 
 
     // Tower 1
@@ -198,7 +198,25 @@ function createObjects() {
     quat.set(0, 0, 0, 1);
     createSphereCage(cageMass, cageExtents, pos, quat);
 
+    // origami pack
+    const scaleOP = 0.3
 
+    let loaderOP = new GLTFLoader()
+    loaderOP.load('assets/models/origami_pack.glb', (gltf) => {
+
+        let testModel = null;
+        testModel = gltf.scene;
+        testModel.scale.set(scaleOP, scaleOP, scaleOP);
+        testModel.position.set(-2, 8.7, 0)
+        testModel.rotation.set(0, 1.55, 0)
+        if (testModel != null) {
+            console.log("Model loaded:  " + testModel);
+            scene.add(gltf.scene);
+        } else {
+            console.log("Load FAILED.  ");
+        }
+
+    });
 
     // gltf object
     let head;
