@@ -22,12 +22,12 @@ Instructions for installing the project locally. Project using the ES6 modules o
 This projects requires to install npm and the latest version of node. Here are the following instructions to install it with a node version manager (nvm):
 
 ``` cmd
-$ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash 
-$ nvm -v
-$ nvm ls-remote
-$ nvm install node
-$ node -v
-$ npm -v
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash 
+nvm -v
+nvm ls-remote
+nvm install node
+node -v
+npm -v
 ```
 
 ### Install project
@@ -37,22 +37,15 @@ After downloading the repository, execute `npm install` once in the root directo
 You can then start a local server by using `npm start` and open `http://localhost:3000/app/` for testing.
 
 
-```ruby
-require 'redcarpet'
-markdown = Redcarpet.new("Hello World!")
-puts markdown.to_html
-```
-
-
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Contact
+## Useful git repositories 
 
-Contact information for the project owner or maintainers.
+Useful git repositories that helped for this project:
 
-- Name: [Your Name](https://github.com/yourusername)
-- Email: [Your Email](mailto:youremail@example.com)
-- GitHub: [Your Username](https://github.com/yourusername)
+- three-jsm: [Mugen87](https://github.com/Mugen87/three-jsm)
+- three-parcel: [fdoganis]https://github.com/fdoganis/three_parcel)
+- physics_ammo_break: [mrdoob](https://github.com/mrdoob/three.js/blob/master/examples/physics_ammo_break.html)
+
