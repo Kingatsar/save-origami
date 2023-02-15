@@ -6,13 +6,13 @@
 
 This is a WebGL project. You will find 5 small 'living' origamis on a computer desktop. Each of the origamis is trapped in a spherical glass. Try to break the glass to set them free... 
 
+![Saving the origamis project](./app/assets/models/save-origami.JPG).
+
 ## Table of Contents
 
 - [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
 - [License](#license)
-- [Contact](#contact)
+- [Useful git repositories](#usefulgitrepositories)
 
 ## Installation
 
@@ -34,7 +34,7 @@ npm -v
 
 After downloading the repository, execute `npm install` once in the root directory to install all dependencies.
 
-You can then start a local server by using `npm start` and open `http://localhost:3000/app/` for testing.
+You can then start a local server by using `npm run dev` then `npm start` and open `http://localhost:3000/app/` for testing.
 
 
 ## License
