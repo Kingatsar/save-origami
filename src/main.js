@@ -18,7 +18,7 @@ const clock = new THREE.Clock();
 
 const mouseCoords = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
-const ballMaterial = new THREE.MeshPhongMaterial({ color: 0x202020 });
+const ballMaterial = new THREE.MeshPhongMaterial({ color: 0xee82ee });
 
 // Physics variables
 const gravityConstant = 7.8;
